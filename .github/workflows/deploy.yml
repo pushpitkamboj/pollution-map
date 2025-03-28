@@ -21,18 +21,22 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      - name: Initialize and Push to Hugging Face
+      - name: Push to Hugging Face
         run: |
-          rm -rf .git/
-          git init
-          git checkout -b main  # Use 'main' branch; change if needed
-          git clone https://huggingface.co/spaces/pushpit7/pollution-map
-          # Configure Git to use credentials
-          git config credential.helper store
-          echo "https://pushpit7:${{ secrets.HF_TOKEN }}@huggingface.co" > ~/.git-credentials
-
+          # Clone the Hugging Face repository using token authentication
+          git clone https://pushpit7:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/pushpit7/pollution-map hf-repo
+          
+          # Copy your project files into the cloned repository (excluding .git directory)
+          cp -r $(ls -A | grep -v "^\.git$" | grep -v "^hf-repo$") hf-repo/
+          
+          # Navigate to the HF repo directory
+          cd hf-repo
+          
+          # Add and commit changes
           git add .
-          git commit -m "Initial commit"
-          git push origin main --force
+          git commit -m "Deploy to Hugging Face"
+          
+          # Push changes with token authentication
+          git push https://pushpit7:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/pushpit7/pollution-map main
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
