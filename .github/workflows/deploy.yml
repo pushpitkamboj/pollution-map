@@ -2,11 +2,9 @@ name: Push Backend to Hugging Face
 
 on:
   push:
-    paths:
-      - '*'
     branches:
       - main
-  workflow_dispatch:  # Allows the workflow to be manually triggered
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   push-to-hf:
@@ -21,18 +19,15 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-      - name: Initialize and Push to Hugging Face
+      - name: Set up Hugging Face repo and Push
         run: |
-          rm -rf .git/
-          git init
-          git checkout -b main  # Use 'main' branch; change if needed
-          git clone https://huggingface.co/spaces/pushpit7/pollution-map
-          # Configure Git to use credentials
-          git config credential.helper store
-          echo "https://pushpit7:${{ secrets.HF_TOKEN }}@huggingface.co" > ~/.git-credentials
-
+          git remote add hf https://pushpit7:${{ secrets.HF_TOKEN }}@huggingface.co/spaces/pushpit7/pollution-map || true
+          git fetch hf main || true
+          git checkout main || git checkout -b main
+          git pull hf main --rebase || true
+          
           git add .
-          git commit -m "Initial commit"
-          git push origin main --force
+          git commit -m "Auto-deploy update" || true
+          git push hf main --force
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
