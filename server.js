@@ -1,19 +1,18 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const bodyParser = require('body-parser');
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const axios = require('axios');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Enable CORS
 app.use(cors());
 
 // Parse JSON body with increased limit for map exports
-app.use(bodyParser.json({ limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 // Disable caching
 app.use((req, res, next) => {
@@ -32,6 +31,13 @@ const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir);
   console.log('Created data directory');
+}
+
+// Temp directory for PDF exports
+const tempDir = path.join(__dirname, 'temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir);
+  console.log('Created temp directory');
 }
 
 // Bookmarks file path
@@ -295,12 +301,6 @@ app.post('/export-pdf', async (req, res) => {
       return res.status(400).json({ error: 'Image data is required' });
     }
     
-    // Create temp directory if it doesn't exist
-    const tempDir = path.join(__dirname, 'temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir);
-    }
-    
     // Generate unique filename
     const filename = `map_export_${Date.now()}.pdf`;
     const pdfPath = path.join(tempDir, filename);
@@ -369,5 +369,5 @@ app.get('/', (req, res) => {
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${PORT}`);
+  console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode at http://localhost:${PORT}`);
 });

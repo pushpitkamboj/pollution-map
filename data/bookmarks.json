@@ -1,28 +1,5 @@
 [
   {
-    "name": "Karchhana",
-    "notes": "",
-    "position": {
-      "lat": 25.43290377226646,
-      "lng": 81.96075439453126,
-      "zoom": 9
-    },
-    "id": "bm_1743094259280",
-    "createdAt": "2025-03-27T16:50:59.280Z"
-  },
-  {
-    "name": "Sahson",
-    "notes": "",
-    "position": {
-      "lat": 25.21239616785117,
-      "lng": 81.9635009765625,
-      "zoom": 9
-    },
-    "id": "bm_1743094274771",
-    "createdAt": "2025-03-27T16:51:14.771Z",
-    "updatedAt": "2025-03-27T16:52:06.582Z"
-  },
-  {
     "name": "Sirmour Tahsil",
     "notes": "",
     "position": {
