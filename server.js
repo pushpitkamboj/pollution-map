@@ -29,15 +29,25 @@ app.use('/js', express.static(path.join(__dirname, 'js')));
 // Create data directory if it doesn't exist
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir);
-  console.log('Created data directory');
+  try {
+    fs.mkdirSync(dataDir, { recursive: true });
+    console.log('Created data directory');
+  } catch (err) {
+    console.error('Failed to create data directory:', err);
+    // Continue execution even if directory creation fails
+  }
 }
 
 // Temp directory for PDF exports
 const tempDir = path.join(__dirname, 'temp');
 if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
-  console.log('Created temp directory');
+  try {
+    fs.mkdirSync(tempDir, { recursive: true });
+    console.log('Created temp directory');
+  } catch (err) {
+    console.error('Failed to create temp directory:', err);
+    // Continue execution even if directory creation fails
+  }
 }
 
 // Bookmarks file path
@@ -305,8 +315,22 @@ app.post('/export-pdf', async (req, res) => {
     const filename = `map_export_${Date.now()}.pdf`;
     const pdfPath = path.join(tempDir, filename);
     
-    // Launch puppeteer to create PDF
-    const browser = await puppeteer.launch({ headless: 'new' });
+    // Launch puppeteer with args for containerized environments
+    const browser = await puppeteer.launch({ 
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
+    });
+    
     const page = await browser.newPage();
     
     // Set viewport to match the map size
@@ -345,13 +369,21 @@ app.post('/export-pdf', async (req, res) => {
         console.error('Error sending PDF:', err);
         // Clean up file if error occurs
         if (fs.existsSync(pdfPath)) {
-          fs.unlinkSync(pdfPath);
+          try {
+            fs.unlinkSync(pdfPath);
+          } catch (unlinkError) {
+            console.error('Error cleaning up PDF file:', unlinkError);
+          }
         }
       } else {
         // Clean up file after sending
         setTimeout(() => {
           if (fs.existsSync(pdfPath)) {
-            fs.unlinkSync(pdfPath);
+            try {
+              fs.unlinkSync(pdfPath);
+            } catch (unlinkError) {
+              console.error('Error cleaning up PDF file:', unlinkError);
+            }
           }
         }, 5000);
       }
@@ -370,4 +402,15 @@ app.get('/', (req, res) => {
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode at http://localhost:${PORT}`);
+});
+
+// Handle process signals for graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: closing HTTP server');
+  process.exit(0);
 });
