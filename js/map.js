@@ -1,6 +1,7 @@
 import { getLocation } from './location.js';
 import markerManager from './marker.js';
 import bookmarksManager from './bookmarks.js';
+import distanceFinder from './distance-find.js';
 
 // Parse URL parameters to get location information
 function parseUrlParams() {
@@ -92,6 +93,9 @@ async function initMap() {
         
         // Initialize bookmarks manager
         bookmarksManager.init();
+        
+        // Initialize distance finder
+        distanceFinder.init(map);
         
         // Check if we need to search for a region by name
         if (urlParams.region && !urlParams.coordinates) {
