@@ -3,19 +3,11 @@ version: '3.8'
 services:
   app:
     build: .
-    container_name: puppeteer_app
-    restart: always
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/data
-      - /app/temp
-    working_dir: /app
-    command: ["node", "server.js"]
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
