@@ -99,7 +99,7 @@ Example URL: `https://huggingface.co/spaces/pushpit7/pollution-map?lat=51.505000
 
 ## Deployment
 
-This application is deployed as a Hugging Face Space. You can access it at [https://huggingface.co/spaces/pushpit7/pollution-map](https://huggingface.co/spaces/pushpit7/pollution-map).
+This application is deployed as a Hugging Face Space. You can access it at [https://pollutionmap.in
 
 ## Running Locally
 
