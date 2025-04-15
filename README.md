@@ -3,7 +3,7 @@ title: Pollution Map
 ---
 #Live link
 http://13.60.27.96
-you can access it from above ip address
+you can access the map from it
 
 # Pollution Map
 
